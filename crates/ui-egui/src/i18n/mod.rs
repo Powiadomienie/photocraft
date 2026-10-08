@@ -86,10 +86,12 @@ fn plural_pt(n: u64) -> usize {
 fn plural_polish(n: u64) -> usize {
     let last = n % 10;
     let last_two = n % 100;
-    match () {
-        _ if n == 1 => 0,
-        _ if last >= 2 && last <= 4 && !(last_two >= 12 && last_two <= 14) => 1,
-        _ => 2,
+    if n == 1 {
+        0
+    } else if (2..=4).contains(&last) && !(12..=14).contains(&last_two) {
+        1
+    } else {
+        2
     }
 }
 
@@ -532,6 +534,12 @@ mod tests {
         assert_eq!(trn(fr, 0, "{n} item", "{n} items"), "0 élément");
         assert_eq!(trn(fr, 1, "{n} item", "{n} items"), "1 élément");
         assert_eq!(trn(fr, 3, "{n} item", "{n} items"), "3 éléments");
+    }
+
+    #[test]
+    fn polish_plural_rule() {
+        let forms: Vec<usize> = [0, 1, 2, 4, 5, 12, 14, 21, 22, 25, 112, 122].into_iter().map(plural_polish).collect();
+        assert_eq!(forms, [2, 0, 1, 1, 2, 2, 2, 2, 1, 2, 2, 1]);
     }
 
     #[test]
